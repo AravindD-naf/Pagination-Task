@@ -1,55 +1,61 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgxPaginationModule } from 'ngx-pagination';
-import { ProductsService, Product } from './products.service';
+import { ProductService } from './products.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, NgxPaginationModule],
-  templateUrl: './app.html',
+  imports: [CommonModule],
+  templateUrl: './app.html'
 })
-export class AppComponent implements OnInit {
-  private readonly productsService = inject(ProductsService);
+export class App implements OnInit {
 
-  products: Product[] = [];
+  products: any[] = [];
   page = 1;
-  pageSize = 10;
-  total = 0;
+  limit = 10;
+  totalProducts = 0;
 
-  loading = false;
-  error: string | null = null;
+  constructor(
+    private productService: ProductService,
+    private cd: ChangeDetectorRef
+  ) {}
 
-  
-  get totalPages(): number {
-      return this.pageSize > 0 ? Math.ceil(this.total / this.pageSize) : 0;
+  ngOnInit() {
+    this.loadProducts();
+  }
+
+  loadProducts() {
+
+    const skip = (this.page - 1) * this.limit;
+
+    this.productService.getProducts(this.limit, skip)
+      .subscribe((res:any) => {
+
+        this.products = res.products;
+        this.totalProducts = res.total;
+
+        this.cd.detectChanges();
+
+      });
+
+  }
+
+  nextPage() {
+
+    if (this.page * this.limit < this.totalProducts) {
+      this.page++;
+      this.loadProducts();
     }
 
-
-  ngOnInit(): void {
-    this.loadPage(this.page);
   }
 
-  loadPage(page: number): void {
-    this.loading = true;
-    this.error = null;
+  previousPage() {
 
-    this.productsService.getProducts(page, this.pageSize).subscribe({
-      next: (res) => {
-        this.products = res.products;
-        this.total = res.total;
-        this.page = page;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.error = 'Failed to load products. Please try again.';
-        this.loading = false;
-      },
-    });
+    if (this.page > 1) {
+      this.page--;
+      this.loadProducts();
+    }
+
   }
 
-  onPageChange(newPage: number): void {
-    this.loadPage(newPage);
-  }
 }

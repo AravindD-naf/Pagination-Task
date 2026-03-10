@@ -1,24 +1,28 @@
-<div class="container" style="max-width: 720px; margin: 2rem auto;">
-  <h2>DummyJSON Products</h2>
+<div style="width:600px;margin:auto">
 
-  <div *ngIf="loading">Loading…</div>
-  <div *ngIf="error" class="error" style="color:#b00020">{{ error }}</div>
+  <h2>Products</h2>
 
-  <ul *ngIf="!loading && !error" style="list-style: none; padding: 0;">
-    <li *ngFor="let p of products" style="padding: .5rem 0; border-bottom: 1px solid #eee;">
-      <strong>{{ p.title }}</strong>
-      <span style="opacity:.7"> — ₹{{ p.price }}</span>
-    </li>
-  </ul>
+  <table border="1" width="100%">
+    <tr>
+      <th>Title</th>
+      <th>Price</th>
+    </tr>
 
-  <pagination-controls
-    [responsive]="true"
-    (pageChange)="onPageChange($event)">
-  </pagination-controls>
+    <tr *ngFor="let product of products">
+      <td>{{product.title}}</td>
+      <td>{{product.price}}</td>
+    </tr>
 
+  </table>
 
-<div class="meta" *ngIf="!loading && total">
-  Page {{ page }} of {{ totalPages }} • Total {{ total }} items
-</div>
+  <br>
+
+  <button (click)="previousPage()" [disabled]="page === 1">Previous</button>
+
+  <span style="margin:10px">
+    Page {{page}}
+  </span>
+
+  <button (click)="nextPage()">Next</button>
 
 </div>
